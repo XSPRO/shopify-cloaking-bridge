@@ -1,0 +1,32 @@
+{
+  "name": "shopify-cloaking-bridge",
+  "version": "1.0.0",
+  "description": "Privacy-preserving bridge between Shopify frontend and backend stores",
+  "main": "bridge-server.js",
+  "scripts": {
+    "start": "node bridge-server.js",
+    "dev": "nodemon bridge-server.js",
+    "test": "node test-bridge.js"
+  },
+  "keywords": [
+    "shopify",
+    "ecommerce",
+    "cloaking",
+    "privacy",
+    "bridge"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
