@@ -2,6 +2,12 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
+// Fix for Railway - add fetch support
+if (!global.fetch) {
+    const fetch = require('node-fetch');
+    global.fetch = fetch;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
