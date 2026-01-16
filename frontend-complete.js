@@ -7,7 +7,7 @@
 (function() {
     'use strict';
     
-    const BRIDGE_URL = 'https://YOUR-RAILWAY-APP-NAME.railway.app'; // REPLACE WITH YOUR ACTUAL RAILWAY URL
+    const BRIDGE_URL = 'shopify-cloaking-bridge-production.up.railway.app'; // REPLACE WITH YOUR ACTUAL RAILWAY URL
     const DEBUG = true; // Set to false in production
     
     function log(...args) {
