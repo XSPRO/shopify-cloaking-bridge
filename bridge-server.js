@@ -271,7 +271,6 @@ const SKU_MAPPING = {
         "realProduct": "BackedStock® L Bundle"
     }
 };
-};
 
 // Shopify API configuration
 const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2026-01/graphql.json`;
