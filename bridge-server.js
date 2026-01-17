@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Parse form data
 app.use(cors({
     origin: '*',
     credentials: false
@@ -369,9 +370,19 @@ async function createShopifyCart(items) {
 app.post('/checkout-bridge', async (req, res) => {
     try {
         console.log('🌉 Bridge request received');
-        console.log('📦 Items received:', req.body.items ? req.body.items.length : 0);
+        console.log('📦 Request body:', req.body);
         
-        const { items } = req.body;
+        // Parse items from form submission
+        let items;
+        if (typeof req.body.items === 'string') {
+            // Form submission - items is a JSON string
+            items = JSON.parse(req.body.items);
+        } else {
+            // Direct JSON - items is already an array
+            items = req.body.items;
+        }
+        
+        console.log('📦 Items parsed:', items ? items.length : 0);
         
         if (!items || !Array.isArray(items) || items.length === 0) {
             console.error('❌ No items in request');
