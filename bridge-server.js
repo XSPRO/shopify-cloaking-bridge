@@ -320,11 +320,17 @@ async function createShopifyCart(items) {
         
         console.log(`🔄 Mapping: ${item.sku} → ${mapping.realProduct}`);
         
-        return {
+        const lineItem = {
             merchandiseId: mapping.storeBVariantId,
-            quantity: item.quantity,
-            attributes: item.properties || []
+            quantity: item.quantity
         };
+        
+        // Only add attributes if they exist and are not empty
+        if (item.properties && Array.isArray(item.properties) && item.properties.length > 0) {
+            lineItem.attributes = item.properties;
+        }
+        
+        return lineItem;
     });
 
     const variables = {
