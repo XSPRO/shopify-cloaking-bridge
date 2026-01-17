@@ -284,7 +284,6 @@ async function createShopifyCart(items) {
             cartCreate(input: $input) {
                 cart {
                     id
-                    webUrl
                     checkoutUrl
                     lines(first: 100) {
                         edges {
@@ -398,7 +397,7 @@ app.post('/checkout-bridge', async (req, res) => {
         console.log('⚙️  Creating cart on Store B...');
         const cart = await createShopifyCart(items);
         
-        const checkoutUrl = cart.checkoutUrl || cart.webUrl;
+        const checkoutUrl = cart.checkoutUrl;
         
         console.log('✅ Cart created successfully:', cart.id);
         console.log('🔗 Checkout URL:', checkoutUrl);
