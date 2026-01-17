@@ -29,250 +29,252 @@ app.get('/', (req, res) => {
 });
 
 // Complete SKU mapping with all 44 products
+// Updated SKU mapping with correct variant IDs from Store B
 const SKU_MAPPING = {
     // FRAGRANCES - All map to same cologne (6→1 consolidation)
     "VALENT1NO_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810929364",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816698580",
         "displayProduct": "Valent1no",
         "realProduct": "BackedStock® Cologne"
     },
     "T0M_F0RD_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810929364", 
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816698580", 
         "displayProduct": "T0m F0rd",
         "realProduct": "BackedStock® Cologne"
     },
     "BAKARAT_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810929364",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816698580",
         "displayProduct": "Bakarat",
         "realProduct": "BackedStock® Cologne"
     },
     "CR3EED_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810929364",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816698580",
         "displayProduct": "Cr3eed",
         "realProduct": "BackedStock® Cologne"
     },
     "DI0R_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810929364",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816698580",
         "displayProduct": "Di0r",
         "realProduct": "BackedStock® Cologne"
     },
     "JPG1_FRAGRANCE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810929364",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816698580",
         "displayProduct": "JPG1 Fragrance",
         "realProduct": "BackedStock® Cologne"
     },
     
     // WATCHES
     "U1TRA_WATCH_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811584724",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454818959572",
         "displayProduct": "U1tra Watch",
         "realProduct": "BackedStock® U Watch"
     },
     "R0LEX_WATCH_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811519188",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454818533588",
         "displayProduct": "R0lex Watch",
         "realProduct": "BackedStock® R Watch"
     },
     "MOSSINAITE_WATCH_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811683028",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454819156180",
         "displayProduct": "Mossinaite Watch",
         "realProduct": "BackedStock® M Watch"
     },
     
     // CHROME HEARTS ITEMS
     "CHR0M3_BELT_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813354196",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454824464596",
         "displayProduct": "Chr0m3 Belt",
         "realProduct": "BackedStock® C Belt"
     },
     "CHR0M3_JEANS_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812502228",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454821744852",
         "displayProduct": "Chr0m3 Jeans",
         "realProduct": "BackedStock® Pants"
     },
     "CHR0M3_JERSEY_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812829908",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454822793428",
         "displayProduct": "Chr0m3 Jersey",
         "realProduct": "BackedStock® C Jersey"
     },
     "CHR0M3_JEWLERY_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812076244",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454820696276",
         "displayProduct": "Chr0m3 Jewlery",
         "realProduct": "BackedStock® C Jewelry"
     },
     "CHR0M3_T_SHIRTS_COPY_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812731604",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454822662356",
         "displayProduct": "Chr0m3 T-Shirts",
         "realProduct": "BackedStock® C Shirt"
     },
     "CHR0M3_TRUCKER_HAT_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812928212",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454823219412",
         "displayProduct": "Chr0m3 Trucker Hat",
         "realProduct": "BackedStock® C Hat"
     },
     
     // CLOTHING - CONSOLIDATION (3→1 hoodies, 3→1 pants)
     "DEN1M_SWEAT_PANTS_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812502228",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454821744852",
         "displayProduct": "Den1m Sweat Pants",
         "realProduct": "BackedStock® Pants"
     },
     "DEN1M_HOODIE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812633300",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454822072532",
         "displayProduct": "Den1m hoodie",
         "realProduct": "BackedStock® Hoodie"
     },
     "ESSCENTIALS_HOODIE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812633300",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454822072532",
         "displayProduct": "Esscentials Hoodie",
         "realProduct": "BackedStock® Hoodie"
     },
     "SPYDUR_SWEAT_PANTS_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812502228",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454821744852",
         "displayProduct": "Spydur Sweat Pants",
         "realProduct": "BackedStock® Pants"
     },
     "SPYDUR_HOODIE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812633300",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454822072532",
         "displayProduct": "Spydur Hoodie",
         "realProduct": "BackedStock® Hoodie"
     },
     
     // LV ITEMS
     "LV1_BELT_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813190356",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454824235220",
         "displayProduct": "Lv1 Belt",
         "realProduct": "BackedStock® L Belt"
     },
     "LV1_BRACELET_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811912404",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454819549396",
         "displayProduct": "Lv1 Bracelet",
         "realProduct": "BackedStock® L Bracelet"
     },
     "LV1_WALLET_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813485268",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454825349332",
         "displayProduct": "Lv1 Wallet",
         "realProduct": "BackedStock® L Wallet"
     },
     
     // SHOES
     "J4_SHOES_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813059284",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454823579860",
         "displayProduct": "J4 shoes",
         "realProduct": "BackedStock® Shoes"
     },
     "MAXES_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042815320276",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454830428372",
         "displayProduct": "Maxes",
         "realProduct": "BackedStock® Maxes"
     },
     "SLIDEZZ_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813124820",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454823645396",
         "displayProduct": "Slidezz",
         "realProduct": "BackedStock® Slides"
     },
     
     // TECH - CONSOLIDATION (2→1 phones, 2→1 computers)
     "J8L_SPEAKER_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814140628",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454826856660",
         "displayProduct": "J8L Speaker",
         "realProduct": "BackedStock® Speaker"
     },
     "PODS_3_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814042324",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454826758356",
         "displayProduct": "Pods 3",
         "realProduct": "BackedStock® Pods 3"
     },
     "PODS_PRO_2_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813944020",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454826627284",
         "displayProduct": "Pods Pro 2",
         "realProduct": "BackedStock® Pods 2"
     },
     "PHONE_16_PRO_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814501076",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454827282644",
         "displayProduct": "Phone 16 Pro",
         "realProduct": "BackedStock® Phone"
     },
     "PHONE_16_PRO_MAX_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814501076",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454827282644",
         "displayProduct": "Phone 16 Pro Max",
         "realProduct": "BackedStock® Phone"
     },
     "M4CBOOK_AIR_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814664916",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454827446484",
         "displayProduct": "M4cBook Air",
         "realProduct": "BackedStock® Computer"
     },
     "M4CBOOK_PRO_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814664916",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454827446484",
         "displayProduct": "M4cBook Pro",
         "realProduct": "BackedStock® Computer"
     },
     
     // ACCESSORIES
     "PR4DA_SUNGLASSES_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042812240084",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454820991188",
         "displayProduct": "Pr4da Sunglasses",
         "realProduct": "BackedStock® P Glasses"
     },
     "N1KE_ELITE_BAG_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811453652",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454818336980",
         "displayProduct": "N1ke Elite bag",
         "realProduct": "BackedStock® N Bag"
     },
     "G0YARDDD_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811388116",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454818271444",
         "displayProduct": "G0yarddd",
         "realProduct": "BackedStock® G Bag"
     },
     "MOSSINAITE_T3NNIS_BRACLET_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042811945172",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454819582164",
         "displayProduct": "Mossinaite T3nnis Braclet",
         "realProduct": "BackedStock® M Bracelet"
     },
     
     // MISC
     "LABUABABA_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042815025364",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454829773012",
         "displayProduct": "Labuababa",
         "realProduct": "BackedStock® Plushie"
     },
-    "LEGGO_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042815090900",
-        "displayProduct": "Leggo",
+    "LARGE_BRICKS_SUPPLIER": {
+        "storeBVariantId": "gid://shopify/ProductVariant/47454829838548",
+        "displayProduct": "Large Bricks",
         "realProduct": "BackedStock® Bricks"
     },
     
     // BUNDLES
     "BEST_SELLER_ACCESSORIES_BUNDLE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813780180",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454826430676",
         "displayProduct": "(BEST SELLER) Accessories Bundle",
         "realProduct": "BackedStock® Accessories Bundle"
     },
     "BEST_SELLER_ALL_ELECTRONICS_BUNDLE_PACK_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042814763220",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454827544788",
         "displayProduct": "(BEST SELLER) All Electronics Bundle Pack",
         "realProduct": "BackedStock® Electronic Bundle"
     },
     "BEST_SELLER_CLOTHING_BUNDLE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/TEMP_CLOTHING_BUNDLE",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454822858964",
         "displayProduct": "(BEST SELLER) Clothing Bundle",
         "realProduct": "BackedStock® Clothing Bundle"
     },
     "BEST_SELLER_FRAGRANCES_BUNDLE_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042810994900",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454816764116",
         "displayProduct": "(BEST SELLER) Fragrances Bundle",
         "realProduct": "BackedStock® Cologne Bundle"
     },
     "BEST_SELLER_LV1_BUNDLE_PACK_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042813681876",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454825545940",
         "displayProduct": "(BEST SELLER) Lv1 Bundle Pack",
         "realProduct": "BackedStock® L Bundle"
     }
 };
+};
 
 // Shopify API configuration
-const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2024-01/graphql.json`;
+const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2026-01/graphql.json`;
 
 /**
  * Create cart on Store B using Shopify Storefront API
@@ -338,7 +340,6 @@ async function createShopifyCart(items) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Shopify-Storefront-Access-Token': process.env.STOREFRONT_ACCESS_TOKEN,
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
