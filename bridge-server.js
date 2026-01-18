@@ -239,7 +239,7 @@ const SKU_MAPPING = {
         "realProduct": "BackedStock® Plushie"
     },
     "LEGGO_SUPPLIER": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9042815090900",
+        "storeBVariantId": "gid://shopify/ProductVariant/47454829838548",
         "displayProduct": "Large Bricks",
         "realProduct": "BackedStock® Bricks"
     },
