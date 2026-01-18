@@ -238,7 +238,7 @@ const SKU_MAPPING = {
         "displayProduct": "Labuababa",
         "realProduct": "BackedStock® Plushie"
     },
-    "LARGE_BRICKS_SUPPLIER": {
+    "LEGGO_SUPPLIER": {
         "storeBVariantId": "gid://shopify/ProductVariant/9042815090900",
         "displayProduct": "Large Bricks",
         "realProduct": "BackedStock® Bricks"
