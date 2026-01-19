@@ -416,8 +416,7 @@ app.post('/checkout-bridge', async (req, res) => {
         
         // Return 302 redirect to Store B checkout
         console.log('↪️  Sending 302 redirect...');
-        return res.redirect(302, checkoutUrl);
-// Discord notification AFTER redirect
+        // Discord notification AFTER redirect
 setImmediate(() => {
     try {
         const productList = items.map(i => {
@@ -434,8 +433,8 @@ setImmediate(() => {
         }).catch(() => {});
     } catch(e) {}
 });
+        return res.redirect(302, checkoutUrl);
 
-return;
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
         console.error('Stack:', error.stack);
