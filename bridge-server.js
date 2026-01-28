@@ -190,7 +190,7 @@ const SKU_MAPPING = {
         "realProduct": "BackedStock® Pods 2"
     },
     "PODS_PROMOTION": {
-        "storeBVariantId": "gid://shopify/ProductVariant/9054220648660",
+        "storeBVariantId": "gid://shopify/ProductVariant/47486265360596",
         "displayProduct": "Free Pods Pro 3",
         "realProduct": "BackedStock® Free Pods Pro 3"
     },
