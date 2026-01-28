@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
     });
 });
 
-// Complete SKU mapping with all 44 products
+// Complete SKU mapping with all 44 products + FREE GIFT
 // Updated SKU mapping with correct variant IDs from Store B
 const SKU_MAPPING = {
     // FRAGRANCES - All map to same cologne (6→1 consolidation)
@@ -188,6 +188,11 @@ const SKU_MAPPING = {
         "storeBVariantId": "gid://shopify/ProductVariant/47454826627284",
         "displayProduct": "Pods Pro 2",
         "realProduct": "BackedStock® Pods 2"
+    },
+    "PODS_PROMOTION": {
+        "storeBVariantId": "gid://shopify/ProductVariant/9054220648660",
+        "displayProduct": "Free Pods Pro 3",
+        "realProduct": "BackedStock® Free Pods Pro 3"
     },
     "PHONE_16_PRO_SUPPLIER": {
         "storeBVariantId": "gid://shopify/ProductVariant/47454827282644",
