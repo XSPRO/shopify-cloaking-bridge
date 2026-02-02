@@ -214,6 +214,22 @@ const SKU_MAPPING = {
         "displayProduct": "M4cBook Pro",
         "realProduct": "BackedStock® Computer"
     },
+
+    "PODS_BUNDLE-3": {
+    "storeBVariantId": "gid://shopify/ProductVariant/47499769938132",
+    "displayProduct": "Pods Bundle (3-Pack)",
+    "realProduct": "ProfitSupply® Pods Bundle (3-Pack)"
+},
+"PODS_BUNDLE-5": {
+    "storeBVariantId": "gid://shopify/ProductVariant/47499769970900",
+    "displayProduct": "Pods Bundle (5-Pack)",
+    "realProduct": "ProfitSupply® Pods Bundle (5-Pack)"
+},
+"PODS_BUNDLE-10": {
+    "storeBVariantId": "gid://shopify/ProductVariant/47499770003668",
+    "displayProduct": "Pods Bundle (10-Pack)",
+    "realProduct": "ProfitSupply® Pods Bundle (10-Pack)"
+},
     
     // ACCESSORIES
     "PR4DA_SUNGLASSES_SUPPLIER": {
