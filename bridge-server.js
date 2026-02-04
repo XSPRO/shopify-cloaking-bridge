@@ -332,7 +332,7 @@ async function createShopifyCart(items, attribution = null) {
         }
     `;
 
-    // Map Store A items to Store B variant IDs
+    // Map Store A items to Store B variant IDs (NO LINE-ITEM ATTRIBUTES)
     const mappedLines = items.map(item => {
         const mapping = SKU_MAPPING[item.sku];
         if (!mapping) {
@@ -343,40 +343,32 @@ async function createShopifyCart(items, attribution = null) {
         
         const lineItem = {
             merchandiseId: mapping.storeBVariantId,
-            quantity: item.quantity,
-            attributes: []
+            quantity: item.quantity
         };
         
-        // Add original product info for order webhook (HIDDEN from checkout with underscore prefix)
-        lineItem.attributes.push({
-            key: '_original_sku',
-            value: item.sku
-        });
-        
-        lineItem.attributes.push({
-            key: '_original_product', 
-            value: mapping.displayProduct
-        });
-        
-        // Add UTM attribution if available (HIDDEN from checkout)
-        if (attribution) {
-            lineItem.attributes.push({
-                key: '_utm_campaign',
-                value: attribution.campaign
-            });
-        }
-        
-        // Add existing properties if they exist
+        // Only add existing properties if they exist (no custom attributes)
         if (item.properties && Array.isArray(item.properties) && item.properties.length > 0) {
-            lineItem.attributes.push(...item.properties);
+            lineItem.attributes = item.properties;
         }
         
         return lineItem;
     });
 
+    // Store attribution data in cart note (hidden from checkout display)
+    const originalProducts = items.map(item => {
+        const mapping = SKU_MAPPING[item.sku];
+        return `${item.sku}:${mapping ? mapping.displayProduct : 'Unknown'}`;
+    }).join(',');
+
+    let cartNote = `_products:${originalProducts}`;
+    if (attribution) {
+        cartNote += `|_campaign:${attribution.campaign}`;
+    }
+
     const variables = {
         input: {
-            lines: mappedLines
+            lines: mappedLines,
+            note: cartNote
         }
     };
 
@@ -446,16 +438,16 @@ app.post('/checkout-bridge', async (req, res) => {
         
         console.log('✅ Cart created successfully:', cart.id);
 
-        // Set privacy headers
+        // Set privacy headers and REDIRECT FIRST (for speed)
         res.set({
             'Referrer-Policy': 'no-referrer',
             'Cache-Control': 'no-cache, no-store, must-revalidate'
         });
         
-        // REDIRECT FIRST (for speed)
-        const redirectResponse = res.redirect(302, checkoutUrl);
+        // Start the redirect response IMMEDIATELY
+        res.redirect(302, checkoutUrl);
         
-        // THEN Discord notification (after redirect starts)
+        // THEN send Discord notification AFTER redirect starts (non-blocking)
         setImmediate(() => {
             try {
                 const productList = items.map(i => {
@@ -474,8 +466,6 @@ app.post('/checkout-bridge', async (req, res) => {
                 }).catch(() => {});
             } catch(e) {}
         });
-        
-        return redirectResponse;
 
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
