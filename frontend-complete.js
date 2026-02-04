@@ -37,7 +37,18 @@
         try {
             log('Sending cart to bridge:', cartData);
             
-            const response = await fetch(`${BRIDGE_URL}/checkout-bridge`, {
+            // Capture UTM from current page URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const utmCampaign = urlParams.get('utm_campaign');
+            
+            // Add UTM to bridge URL if present
+            const bridgeUrl = utmCampaign ? 
+                `${BRIDGE_URL}/checkout-bridge?utm_campaign=${encodeURIComponent(utmCampaign)}` : 
+                `${BRIDGE_URL}/checkout-bridge`;
+            
+            log('Bridge URL with UTM:', bridgeUrl);
+            
+            const response = await fetch(bridgeUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
