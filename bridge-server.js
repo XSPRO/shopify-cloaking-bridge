@@ -299,7 +299,7 @@ const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2026-01/gr
 /**
  * Create cart on Store B using Shopify Storefront API
  */
-async function createShopifyCart(items, attribution = null) {
+async function createShopifyCart(items) {
     const cartCreateMutation = `
         mutation cartCreate($input: CartInput!) {
             cartCreate(input: $input) {
@@ -332,7 +332,7 @@ async function createShopifyCart(items, attribution = null) {
         }
     `;
 
-    // Map Store A items to Store B variant IDs (NO LINE-ITEM ATTRIBUTES)
+    // Map Store A items to Store B variant IDs
     const mappedLines = items.map(item => {
         const mapping = SKU_MAPPING[item.sku];
         if (!mapping) {
@@ -346,7 +346,7 @@ async function createShopifyCart(items, attribution = null) {
             quantity: item.quantity
         };
         
-        // Only add existing properties if they exist (no custom attributes)
+        // Only add attributes if they exist and are not empty
         if (item.properties && Array.isArray(item.properties) && item.properties.length > 0) {
             lineItem.attributes = item.properties;
         }
@@ -354,21 +354,9 @@ async function createShopifyCart(items, attribution = null) {
         return lineItem;
     });
 
-    // Store attribution data in cart note (hidden from checkout display)
-    const originalProducts = items.map(item => {
-        const mapping = SKU_MAPPING[item.sku];
-        return `${item.sku}:${mapping ? mapping.displayProduct : 'Unknown'}`;
-    }).join(',');
-
-    let cartNote = `_products:${originalProducts}`;
-    if (attribution) {
-        cartNote += `|_campaign:${attribution.campaign}`;
-    }
-
     const variables = {
         input: {
-            lines: mappedLines,
-            note: cartNote
+            lines: mappedLines
         }
     };
 
@@ -408,18 +396,19 @@ async function createShopifyCart(items, attribution = null) {
 app.post('/checkout-bridge', async (req, res) => {
     try {
         console.log('🌉 Bridge request received');
+        console.log('📦 Request body:', req.body);
         
         // Parse items from form submission
         let items;
         if (typeof req.body.items === 'string') {
+            // Form submission - items is a JSON string
             items = JSON.parse(req.body.items);
         } else {
+            // Direct JSON - items is already an array
             items = req.body.items;
         }
         
-        // Get UTM attribution (URL params or fallback to "Organic")
-        const campaign = req.query.utm_campaign || req.body.utm_campaign || 'Organic';
-        const attribution = { campaign };
+        console.log('📦 Items parsed:', items ? items.length : 0);
         
         if (!items || !Array.isArray(items) || items.length === 0) {
             console.error('❌ No items in request');
@@ -433,42 +422,43 @@ app.post('/checkout-bridge', async (req, res) => {
 
         // Create cart on Store B
         console.log('⚙️  Creating cart on Store B...');
-        const cart = await createShopifyCart(items, attribution);
+        const cart = await createShopifyCart(items);
+        
         const checkoutUrl = cart.checkoutUrl;
         
         console.log('✅ Cart created successfully:', cart.id);
-
-        // Set privacy headers and REDIRECT FIRST (for speed)
+        console.log('🔗 Checkout URL:', checkoutUrl);
+        
+        // Set privacy headers
         res.set({
             'Referrer-Policy': 'no-referrer',
             'Cache-Control': 'no-cache, no-store, must-revalidate'
         });
         
-        // Start the redirect response IMMEDIATELY
-        res.redirect(302, checkoutUrl);
+        // Return 302 redirect to Store B checkout
+        console.log('↪️  Sending 302 redirect...');
+        // Discord notification AFTER redirect
+setImmediate(() => {
+    try {
+        const productList = items.map(i => {
+            const mapping = SKU_MAPPING[i.sku];
+            return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
+        }).join('\n');
         
-        // THEN send Discord notification AFTER redirect starts (non-blocking)
-        setImmediate(() => {
-            try {
-                const productList = items.map(i => {
-                    const mapping = SKU_MAPPING[i.sku];
-                    return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
-                }).join('\n');
-                
-                const discordContent = `🛒 **Checkout Started**\n📱 Campaign: ${campaign}\nItems: ${items.length}\n\n${productList}`;
-                
-                fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: discordContent
-                    })
-                }).catch(() => {});
-            } catch(e) {}
-        });
+        fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
+            })
+        }).catch(() => {});
+    } catch(e) {}
+});
+        return res.redirect(302, checkoutUrl);
 
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
+        console.error('Stack:', error.stack);
         return res.status(500).send(`Cart creation failed: ${error.message}`);
     }
 });
