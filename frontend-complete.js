@@ -41,12 +41,17 @@
             const urlParams = new URLSearchParams(window.location.search);
             const utmCampaign = urlParams.get('utm_campaign');
             
+            // DEBUG LOGS
+            console.log('🎯 Current URL:', window.location.href);
+            console.log('🎯 URL Search Params:', window.location.search);
+            console.log('🎯 UTM Campaign Found:', utmCampaign);
+            
             // Add UTM to bridge URL if present
             const bridgeUrl = utmCampaign ? 
                 `${BRIDGE_URL}/checkout-bridge?utm_campaign=${encodeURIComponent(utmCampaign)}` : 
                 `${BRIDGE_URL}/checkout-bridge`;
             
-            log('Bridge URL with UTM:', bridgeUrl);
+            console.log('🎯 Final Bridge URL:', bridgeUrl);
             
             const response = await fetch(bridgeUrl, {
                 method: 'POST',
