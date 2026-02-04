@@ -347,26 +347,22 @@ async function createShopifyCart(items, attribution = null) {
             attributes: []
         };
         
-        // Add original product info for order webhook
+        // Add original product info for order webhook (HIDDEN from checkout with underscore prefix)
         lineItem.attributes.push({
-            key: 'original_sku',
+            key: '_original_sku',
             value: item.sku
         });
         
         lineItem.attributes.push({
-            key: 'original_product', 
+            key: '_original_product', 
             value: mapping.displayProduct
         });
         
-        // Add UTM attribution if available
+        // Add UTM attribution if available (HIDDEN from checkout)
         if (attribution) {
             lineItem.attributes.push({
-                key: 'utm_campaign',
+                key: '_utm_campaign',
                 value: attribution.campaign
-            });
-            lineItem.attributes.push({
-                key: 'utm_source', 
-                value: attribution.source
             });
         }
         
@@ -420,25 +416,18 @@ async function createShopifyCart(items, attribution = null) {
 app.post('/checkout-bridge', async (req, res) => {
     try {
         console.log('🌉 Bridge request received');
-        console.log('📦 Request body:', req.body);
         
         // Parse items from form submission
         let items;
         if (typeof req.body.items === 'string') {
-            // Form submission - items is a JSON string
             items = JSON.parse(req.body.items);
         } else {
-            // Direct JSON - items is already an array
             items = req.body.items;
         }
         
         // Get UTM attribution (URL params or fallback to "Organic")
         const campaign = req.query.utm_campaign || req.body.utm_campaign || 'Organic';
-        const source = req.query.utm_source || req.body.utm_source || 'Unknown';
-        const attribution = { campaign, source };
-        console.log(`🎯 Attribution - Campaign: ${campaign}, Source: ${source}`);
-        
-        console.log('📦 Items parsed:', items ? items.length : 0);
+        const attribution = { campaign };
         
         if (!items || !Array.isArray(items) || items.length === 0) {
             console.error('❌ No items in request');
@@ -453,21 +442,20 @@ app.post('/checkout-bridge', async (req, res) => {
         // Create cart on Store B
         console.log('⚙️  Creating cart on Store B...');
         const cart = await createShopifyCart(items, attribution);
-        
         const checkoutUrl = cart.checkoutUrl;
         
         console.log('✅ Cart created successfully:', cart.id);
-        console.log('🔗 Checkout URL:', checkoutUrl);
-        
+
         // Set privacy headers
         res.set({
             'Referrer-Policy': 'no-referrer',
             'Cache-Control': 'no-cache, no-store, must-revalidate'
         });
         
-        // Return 302 redirect to Store B checkout
-        console.log('↪️  Sending 302 redirect...');
-        // Enhanced Discord notification with attribution
+        // REDIRECT FIRST (for speed)
+        const redirectResponse = res.redirect(302, checkoutUrl);
+        
+        // THEN Discord notification (after redirect starts)
         setImmediate(() => {
             try {
                 const productList = items.map(i => {
@@ -475,7 +463,7 @@ app.post('/checkout-bridge', async (req, res) => {
                     return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
                 }).join('\n');
                 
-                const discordContent = `🛒 **Checkout Started**\n📱 Campaign: ${campaign}\n🔗 Source: ${source}\nItems: ${items.length}\n\n${productList}`;
+                const discordContent = `🛒 **Checkout Started**\n📱 Campaign: ${campaign}\nItems: ${items.length}\n\n${productList}`;
                 
                 fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
                     method: 'POST',
@@ -486,11 +474,11 @@ app.post('/checkout-bridge', async (req, res) => {
                 }).catch(() => {});
             } catch(e) {}
         });
-        return res.redirect(302, checkoutUrl);
+        
+        return redirectResponse;
 
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
-        console.error('Stack:', error.stack);
         return res.status(500).send(`Cart creation failed: ${error.message}`);
     }
 });
