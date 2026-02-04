@@ -299,7 +299,7 @@ const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2026-01/gr
 /**
  * Create cart on Store B using Shopify Storefront API
  */
-async function createShopifyCart(items) {
+async function createShopifyCart(items, attribution = null) {
     const cartCreateMutation = `
         mutation cartCreate($input: CartInput!) {
             cartCreate(input: $input) {
@@ -343,12 +343,36 @@ async function createShopifyCart(items) {
         
         const lineItem = {
             merchandiseId: mapping.storeBVariantId,
-            quantity: item.quantity
+            quantity: item.quantity,
+            attributes: []
         };
         
-        // Only add attributes if they exist and are not empty
+        // Add original product info for order webhook
+        lineItem.attributes.push({
+            key: 'original_sku',
+            value: item.sku
+        });
+        
+        lineItem.attributes.push({
+            key: 'original_product', 
+            value: mapping.displayProduct
+        });
+        
+        // Add UTM attribution if available
+        if (attribution) {
+            lineItem.attributes.push({
+                key: 'utm_campaign',
+                value: attribution.campaign
+            });
+            lineItem.attributes.push({
+                key: 'utm_source', 
+                value: attribution.source
+            });
+        }
+        
+        // Add existing properties if they exist
         if (item.properties && Array.isArray(item.properties) && item.properties.length > 0) {
-            lineItem.attributes = item.properties;
+            lineItem.attributes.push(...item.properties);
         }
         
         return lineItem;
@@ -408,6 +432,12 @@ app.post('/checkout-bridge', async (req, res) => {
             items = req.body.items;
         }
         
+        // Get UTM attribution (URL params or fallback to "Organic")
+        const campaign = req.query.utm_campaign || req.body.utm_campaign || 'Organic';
+        const source = req.query.utm_source || req.body.utm_source || 'Unknown';
+        const attribution = { campaign, source };
+        console.log(`🎯 Attribution - Campaign: ${campaign}, Source: ${source}`);
+        
         console.log('📦 Items parsed:', items ? items.length : 0);
         
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -422,7 +452,7 @@ app.post('/checkout-bridge', async (req, res) => {
 
         // Create cart on Store B
         console.log('⚙️  Creating cart on Store B...');
-        const cart = await createShopifyCart(items);
+        const cart = await createShopifyCart(items, attribution);
         
         const checkoutUrl = cart.checkoutUrl;
         
@@ -437,23 +467,25 @@ app.post('/checkout-bridge', async (req, res) => {
         
         // Return 302 redirect to Store B checkout
         console.log('↪️  Sending 302 redirect...');
-        // Discord notification AFTER redirect
-setImmediate(() => {
-    try {
-        const productList = items.map(i => {
-            const mapping = SKU_MAPPING[i.sku];
-            return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
-        }).join('\n');
-        
-        fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
-            })
-        }).catch(() => {});
-    } catch(e) {}
-});
+        // Enhanced Discord notification with attribution
+        setImmediate(() => {
+            try {
+                const productList = items.map(i => {
+                    const mapping = SKU_MAPPING[i.sku];
+                    return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
+                }).join('\n');
+                
+                const discordContent = `🛒 **Checkout Started**\n📱 Campaign: ${campaign}\n🔗 Source: ${source}\nItems: ${items.length}\n\n${productList}`;
+                
+                fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: discordContent
+                    })
+                }).catch(() => {});
+            } catch(e) {}
+        });
         return res.redirect(302, checkoutUrl);
 
     } catch (error) {
