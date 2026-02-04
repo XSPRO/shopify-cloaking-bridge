@@ -437,25 +437,24 @@ app.post('/checkout-bridge', async (req, res) => {
         
         // Return 302 redirect to Store B checkout
         console.log('↪️  Sending 302 redirect...');
-        res.redirect(302, checkoutUrl);
-        
         // Discord notification AFTER redirect
-        setImmediate(() => {
-            try {
-                const productList = items.map(i => {
-                    const mapping = SKU_MAPPING[i.sku];
-                    return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
-                }).join('\n');
-                
-                fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
-                    })
-                }).catch(() => {});
-            } catch(e) {}
-        });
+setImmediate(() => {
+    try {
+        const productList = items.map(i => {
+            const mapping = SKU_MAPPING[i.sku];
+            return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
+        }).join('\n');
+        
+        fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
+            })
+        }).catch(() => {});
+    } catch(e) {}
+});
+        return res.redirect(302, checkoutUrl);
 
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
