@@ -37,23 +37,7 @@
         try {
             log('Sending cart to bridge:', cartData);
             
-            // Capture UTM from current page URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const utmCampaign = urlParams.get('utm_campaign');
-            
-            // DEBUG LOGS
-            console.log('🎯 Current URL:', window.location.href);
-            console.log('🎯 URL Search Params:', window.location.search);
-            console.log('🎯 UTM Campaign Found:', utmCampaign);
-            
-            // Add UTM to bridge URL if present
-            const bridgeUrl = utmCampaign ? 
-                `${BRIDGE_URL}/checkout-bridge?utm_campaign=${encodeURIComponent(utmCampaign)}` : 
-                `${BRIDGE_URL}/checkout-bridge`;
-            
-            console.log('🎯 Final Bridge URL:', bridgeUrl);
-            
-            const response = await fetch(bridgeUrl, {
+            const response = await fetch(`${BRIDGE_URL}/checkout-bridge`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
