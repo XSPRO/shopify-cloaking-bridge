@@ -1,6 +1,5 @@
 /**
  * Shopify Cloaking Frontend Script - COMPLETE VERSION
- * Add this to Store A theme.liquid before </body>
  * Replace BRIDGE_URL with your actual Railway URL when deploying
  */
 
