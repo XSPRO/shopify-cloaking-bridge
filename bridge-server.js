@@ -408,15 +408,6 @@ app.post('/checkout-bridge', async (req, res) => {
             items = req.body.items;
         }
         
-        // Extract discount codes from request
-        let discountCodes = [];
-        if (req.body.discount_codes && Array.isArray(req.body.discount_codes)) {
-            discountCodes = req.body.discount_codes;
-        } else if (req.body.discount_code) {
-            discountCodes = [req.body.discount_code];
-        }
-        
-        console.log('🎯 Discount codes to transfer:', discountCodes);
         console.log('📦 Items parsed:', items ? items.length : 0);
         
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -433,17 +424,10 @@ app.post('/checkout-bridge', async (req, res) => {
         console.log('⚙️  Creating cart on Store B...');
         const cart = await createShopifyCart(items);
         
-        let checkoutUrl = cart.checkoutUrl;
-        
-        // Apply discount to checkout URL if frontend had one
-        if (discountCodes.length > 0) {
-            const discount = discountCodes[0];
-            checkoutUrl += `?discount=${discount}`;
-            console.log('🎯 Applied discount to checkout URL:', discount);
-            console.log('🎯 Modified checkout URL:', checkoutUrl);
-        }
+        const checkoutUrl = cart.checkoutUrl;
         
         console.log('✅ Cart created successfully:', cart.id);
+        console.log('🔗 Checkout URL:', checkoutUrl);
         
         // Set privacy headers
         res.set({
@@ -453,25 +437,24 @@ app.post('/checkout-bridge', async (req, res) => {
         
         // Return 302 redirect to Store B checkout
         console.log('↪️  Sending 302 redirect...');
-        res.redirect(302, checkoutUrl);
-        
         // Discord notification AFTER redirect
-        setImmediate(() => {
-            try {
-                const productList = items.map(i => {
-                    const mapping = SKU_MAPPING[i.sku];
-                    return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
-                }).join('\n');
-                
-                fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
-                    })
-                }).catch(() => {});
-            } catch(e) {}
-        });
+setImmediate(() => {
+    try {
+        const productList = items.map(i => {
+            const mapping = SKU_MAPPING[i.sku];
+            return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
+        }).join('\n');
+        
+        fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
+            })
+        }).catch(() => {});
+    } catch(e) {}
+});
+        return res.redirect(302, checkoutUrl);
 
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
