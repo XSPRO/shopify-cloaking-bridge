@@ -299,7 +299,7 @@ const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2026-01/gr
 /**
  * Create cart on Store B using Shopify Storefront API
  */
-async function createShopifyCart(items, discountCodes = []) {
+async function createShopifyCart(items) {
     const cartCreateMutation = `
         mutation cartCreate($input: CartInput!) {
             cartCreate(input: $input) {
@@ -356,9 +356,7 @@ async function createShopifyCart(items, discountCodes = []) {
 
     const variables = {
         input: {
-            lines: mappedLines,
-            // Add discount codes if provided
-            ...(discountCodes.length > 0 && { discountCodes: discountCodes })
+            lines: mappedLines
         }
     };
 
@@ -431,14 +429,21 @@ app.post('/checkout-bridge', async (req, res) => {
             console.log(`   Item ${index + 1}: SKU="${item.sku}", Qty=${item.quantity}`);
         });
 
-        // Create cart on Store B with discount transfer
+        // Create cart on Store B
         console.log('⚙️  Creating cart on Store B...');
-        const cart = await createShopifyCart(items, discountCodes);
+        const cart = await createShopifyCart(items);
         
-        const checkoutUrl = cart.checkoutUrl;
+        let checkoutUrl = cart.checkoutUrl;
+        
+        // Apply discount to checkout URL if frontend had one
+        if (discountCodes.length > 0) {
+            const discount = discountCodes[0];
+            checkoutUrl += `?discount=${discount}`;
+            console.log('🎯 Applied discount to checkout URL:', discount);
+            console.log('🎯 Modified checkout URL:', checkoutUrl);
+        }
         
         console.log('✅ Cart created successfully:', cart.id);
-        console.log('🔗 Checkout URL:', checkoutUrl);
         
         // Set privacy headers
         res.set({
@@ -448,24 +453,25 @@ app.post('/checkout-bridge', async (req, res) => {
         
         // Return 302 redirect to Store B checkout
         console.log('↪️  Sending 302 redirect...');
-        // Discord notification AFTER redirect
-setImmediate(() => {
-    try {
-        const productList = items.map(i => {
-            const mapping = SKU_MAPPING[i.sku];
-            return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
-        }).join('\n');
+        res.redirect(302, checkoutUrl);
         
-        fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
-            })
-        }).catch(() => {});
-    } catch(e) {}
-});
-        return res.redirect(302, checkoutUrl);
+        // Discord notification AFTER redirect
+        setImmediate(() => {
+            try {
+                const productList = items.map(i => {
+                    const mapping = SKU_MAPPING[i.sku];
+                    return mapping ? `${mapping.displayProduct} → ${mapping.realProduct} (x${i.quantity})` : i.sku;
+                }).join('\n');
+                
+                fetch('https://discord.com/api/webhooks/1462766339734245450/tvQamu299eAdNOGw3jEWI97J0g4nAEvJVaXTLcJifK_v86Z0lgSu2mEJ1vJtCI9J-t0k', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: '🛒 **Checkout Started**\nItems: ' + items.length + '\n\n' + productList
+                    })
+                }).catch(() => {});
+            } catch(e) {}
+        });
 
     } catch (error) {
         console.error('❌ Bridge error:', error.message);
