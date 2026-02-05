@@ -299,7 +299,7 @@ const STOREFRONT_API_URL = `https://${process.env.STORE_B_DOMAIN}/api/2026-01/gr
 /**
  * Create cart on Store B using Shopify Storefront API
  */
-async function createShopifyCart(items) {
+async function createShopifyCart(items, discountCodes = []) {
     const cartCreateMutation = `
         mutation cartCreate($input: CartInput!) {
             cartCreate(input: $input) {
@@ -356,7 +356,9 @@ async function createShopifyCart(items) {
 
     const variables = {
         input: {
-            lines: mappedLines
+            lines: mappedLines,
+            // Add discount codes if provided
+            ...(discountCodes.length > 0 && { discountCodes: discountCodes })
         }
     };
 
@@ -408,6 +410,15 @@ app.post('/checkout-bridge', async (req, res) => {
             items = req.body.items;
         }
         
+        // Extract discount codes from request
+        let discountCodes = [];
+        if (req.body.discount_codes && Array.isArray(req.body.discount_codes)) {
+            discountCodes = req.body.discount_codes;
+        } else if (req.body.discount_code) {
+            discountCodes = [req.body.discount_code];
+        }
+        
+        console.log('🎯 Discount codes to transfer:', discountCodes);
         console.log('📦 Items parsed:', items ? items.length : 0);
         
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -420,9 +431,9 @@ app.post('/checkout-bridge', async (req, res) => {
             console.log(`   Item ${index + 1}: SKU="${item.sku}", Qty=${item.quantity}`);
         });
 
-        // Create cart on Store B
+        // Create cart on Store B with discount transfer
         console.log('⚙️  Creating cart on Store B...');
-        const cart = await createShopifyCart(items);
+        const cart = await createShopifyCart(items, discountCodes);
         
         const checkoutUrl = cart.checkoutUrl;
         
@@ -529,7 +540,7 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
     console.log(`🗺️  Mapping info: http://localhost:${PORT}/mapping`);
     console.log(`🌉 Bridge endpoint: POST /checkout-bridge`);
-    console.log(`📦 Total SKU mappings: ${Object.keys(SKU_MAPPING).length}`);
+    console.log(`📦 Total SKU mappings: ${Object.keys(SKU_MAPPING).length`);
 });
 
 module.exports = app;
